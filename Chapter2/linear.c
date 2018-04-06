@@ -3,7 +3,7 @@
 long int hist[256];
 void make_histogram(int n);
 void make_histogram_image(int h, int n);
-void revise_image(int n1, int n2);
+void revise_image(int n1);
 //void revise_histogram_image(int n1, int n2);
 
 int main(void)
@@ -16,7 +16,7 @@ int main(void)
   load_image(0, "../trans_mono/linear1.pgm");
   revise_image(0);
   // revise_histogram_image(0);
-  save_image(1, "../trans_mono/linear2.pgm")
+  save_image(0, "../trans_mono/linear2.pgm");
   return 0;
 }
 
@@ -49,31 +49,37 @@ void make_histogram_image(int h, int n)
   }
 }
 
-void revise_image(int n1, int n2)
+void revise_image(int n1)
 {
   int x, y, trans_position;
   int i = 0;
-  int histgram[256];
+  int histogram[256];
   int min = 255;
   int max = 0;
+  //ヒストグラムの最大諧調値と最小諧調値を求める
   for(x=0; x<width[n1]; x++) {
     for(y=0; y<height[n1]; y++) {
-      if(image[n1][x][y] == 255)
+      if(image[n1][x][255] == 255)
+        break;
+      else if(image[n1][x][255-y] == 0)
         i++;
     }
-    histgram[x] = i;
+    histogram[x] = i;
     if(min>i)
       min = i;
     else if(max<i)
       max = i;
+    printf("%d, ", i);
+    i = 0;
   }
+  printf("最大諧調値は%dです。", max);
+  printf("最小諧調値は%dです。", min);
 
-  for(i=0; i<256; i++)
-    if(hist[i] > max) max = hist[i]; 
-  for(x=0; x<width[n]; x++) {
-    trans_position = (int)(255 * (histgram[x]-min) / (max-min));
-    for(y=0; y<histgram[x]; y++)
-      image[n2][x][255-y] = 255;
+  for(x=0; x<width[n1]; x++) {
+    trans_position = (int)(255 * (histogram[x]-min) / (max-min));
+    for(y=0; y<histogram[x]; y++)
+      image[n1][x][255-y] = 255;
+  }
 }
 
 // void revise_histogram_image(int n1, int n2)
